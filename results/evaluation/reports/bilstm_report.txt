@@ -1,0 +1,34 @@
+======================================================================
+MODEL: BiLSTM
+======================================================================
+
+Test Loss     : 0.281464
+Test Accuracy : 92.70%
+Precision     : 92.73%
+Recall        : 92.70%
+F1-Score      : 92.69%
+
+CLASSIFICATION REPORT
+======================================================================
+
+                    precision    recall  f1-score   support
+
+            LAYING     0.9958    0.9476    0.9711       496
+           SITTING     0.9607    0.9851    0.9727       471
+          STANDING     0.9428    0.9810    0.9615       420
+           WALKING     0.8167    0.8350    0.8258       491
+WALKING_DOWNSTAIRS     0.8616    0.8308    0.8459       532
+  WALKING_UPSTAIRS     0.9889    0.9944    0.9916       537
+
+          accuracy                         0.9270      2947
+         macro avg     0.9277    0.9290    0.9281      2947
+      weighted avg     0.9273    0.9270    0.9269      2947
+
+PER-CLASS ACCURACY
+======================================================================
+LAYING                   : 94.76%
+SITTING                  : 98.51%
+STANDING                 : 98.10%
+WALKING                  : 83.50%
+WALKING_DOWNSTAIRS       : 83.08%
+WALKING_UPSTAIRS         : 99.44%

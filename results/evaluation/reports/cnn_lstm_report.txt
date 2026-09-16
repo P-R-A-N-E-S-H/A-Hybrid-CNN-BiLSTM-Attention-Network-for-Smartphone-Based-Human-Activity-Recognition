@@ -1,0 +1,34 @@
+======================================================================
+MODEL: CNN-LSTM
+======================================================================
+
+Test Loss     : 0.354766
+Test Accuracy : 91.55%
+Precision     : 91.54%
+Recall        : 91.55%
+F1-Score      : 91.51%
+
+CLASSIFICATION REPORT
+======================================================================
+
+                    precision    recall  f1-score   support
+
+            LAYING     0.9855    0.9617    0.9735       496
+           SITTING     0.9179    0.9490    0.9332       471
+          STANDING     0.9034    0.9571    0.9295       420
+           WALKING     0.8114    0.8147    0.8130       491
+WALKING_DOWNSTAIRS     0.8700    0.8177    0.8430       532
+  WALKING_UPSTAIRS     0.9981    1.0000    0.9991       537
+
+          accuracy                         0.9155      2947
+         macro avg     0.9144    0.9167    0.9152      2947
+      weighted avg     0.9154    0.9155    0.9151      2947
+
+PER-CLASS ACCURACY
+======================================================================
+LAYING                   : 96.17%
+SITTING                  : 94.90%
+STANDING                 : 95.71%
+WALKING                  : 81.47%
+WALKING_DOWNSTAIRS       : 81.77%
+WALKING_UPSTAIRS         : 100.00%

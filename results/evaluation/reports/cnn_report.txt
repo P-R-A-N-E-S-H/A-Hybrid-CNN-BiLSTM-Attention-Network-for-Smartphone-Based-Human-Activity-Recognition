@@ -1,0 +1,34 @@
+======================================================================
+MODEL: CNN
+======================================================================
+
+Test Loss     : 0.274720
+Test Accuracy : 91.86%
+Precision     : 91.94%
+Recall        : 91.86%
+F1-Score      : 91.85%
+
+CLASSIFICATION REPORT
+======================================================================
+
+                    precision    recall  f1-score   support
+
+            LAYING     0.9858    0.9798    0.9828       496
+           SITTING     0.9977    0.9342    0.9649       471
+          STANDING     0.9272    1.0000    0.9622       420
+           WALKING     0.8089    0.7760    0.7921       491
+WALKING_DOWNSTAIRS     0.8025    0.8327    0.8173       532
+  WALKING_UPSTAIRS     1.0000    1.0000    1.0000       537
+
+          accuracy                         0.9186      2947
+         macro avg     0.9204    0.9204    0.9199      2947
+      weighted avg     0.9194    0.9186    0.9185      2947
+
+PER-CLASS ACCURACY
+======================================================================
+LAYING                   : 97.98%
+SITTING                  : 93.42%
+STANDING                 : 100.00%
+WALKING                  : 77.60%
+WALKING_DOWNSTAIRS       : 83.27%
+WALKING_UPSTAIRS         : 100.00%

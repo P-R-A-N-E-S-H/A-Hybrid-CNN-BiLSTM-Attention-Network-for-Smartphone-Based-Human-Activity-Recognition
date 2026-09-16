@@ -1,0 +1,357 @@
+[
+    {
+        "model": "CNN",
+        "test_loss": 0.27471959590911865,
+        "test_accuracy": 0.9185612487275195,
+        "test_accuracy_percent": 91.85612487275195,
+        "precision": 0.9193827517005526,
+        "precision_percent": 91.93827517005526,
+        "recall": 0.9185612487275195,
+        "recall_percent": 91.85612487275195,
+        "f1_score": 0.9184998907762454,
+        "f1_score_percent": 91.84998907762454,
+        "per_class_accuracy": {
+            "LAYING": 97.98387096774194,
+            "SITTING": 93.41825902335457,
+            "STANDING": 100.0,
+            "WALKING": 77.59674134419552,
+            "WALKING_DOWNSTAIRS": 83.27067669172934,
+            "WALKING_UPSTAIRS": 100.0
+        },
+        "confusion_matrix": [
+            [
+                486,
+                0,
+                9,
+                1,
+                0,
+                0
+            ],
+            [
+                7,
+                440,
+                24,
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                0,
+                420,
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                1,
+                0,
+                381,
+                109,
+                0
+            ],
+            [
+                0,
+                0,
+                0,
+                89,
+                443,
+                0
+            ],
+            [
+                0,
+                0,
+                0,
+                0,
+                0,
+                537
+            ]
+        ],
+        "classification_report": "                    precision    recall  f1-score   support\n\n            LAYING     0.9858    0.9798    0.9828       496\n           SITTING     0.9977    0.9342    0.9649       471\n          STANDING     0.9272    1.0000    0.9622       420\n           WALKING     0.8089    0.7760    0.7921       491\nWALKING_DOWNSTAIRS     0.8025    0.8327    0.8173       532\n  WALKING_UPSTAIRS     1.0000    1.0000    1.0000       537\n\n          accuracy                         0.9186      2947\n         macro avg     0.9204    0.9204    0.9199      2947\n      weighted avg     0.9194    0.9186    0.9185      2947\n"
+    },
+    {
+        "model": "LSTM",
+        "test_loss": 0.2813515365123749,
+        "test_accuracy": 0.9056667797760435,
+        "test_accuracy_percent": 90.56667797760434,
+        "precision": 0.9063945835380017,
+        "precision_percent": 90.63945835380018,
+        "recall": 0.9056667797760435,
+        "recall_percent": 90.56667797760434,
+        "f1_score": 0.9055543096733223,
+        "f1_score_percent": 90.55543096733223,
+        "per_class_accuracy": {
+            "LAYING": 94.35483870967742,
+            "SITTING": 93.41825902335457,
+            "STANDING": 95.47619047619048,
+            "WALKING": 83.5030549898167,
+            "WALKING_DOWNSTAIRS": 77.63157894736842,
+            "WALKING_UPSTAIRS": 100.0
+        },
+        "confusion_matrix": [
+            [
+                468,
+                2,
+                26,
+                0,
+                0,
+                0
+            ],
+            [
+                22,
+                440,
+                9,
+                0,
+                0,
+                0
+            ],
+            [
+                2,
+                17,
+                401,
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                3,
+                0,
+                410,
+                77,
+                1
+            ],
+            [
+                2,
+                0,
+                0,
+                117,
+                413,
+                0
+            ],
+            [
+                0,
+                0,
+                0,
+                0,
+                0,
+                537
+            ]
+        ],
+        "classification_report": "                    precision    recall  f1-score   support\n\n            LAYING     0.9474    0.9435    0.9455       496\n           SITTING     0.9524    0.9342    0.9432       471\n          STANDING     0.9197    0.9548    0.9369       420\n           WALKING     0.7780    0.8350    0.8055       491\nWALKING_DOWNSTAIRS     0.8429    0.7763    0.8082       532\n  WALKING_UPSTAIRS     0.9981    1.0000    0.9991       537\n\n          accuracy                         0.9057      2947\n         macro avg     0.9064    0.9073    0.9064      2947\n      weighted avg     0.9064    0.9057    0.9056      2947\n"
+    },
+    {
+        "model": "BiLSTM",
+        "test_loss": 0.2814640402793884,
+        "test_accuracy": 0.9270444519850696,
+        "test_accuracy_percent": 92.70444519850696,
+        "precision": 0.9273032014857947,
+        "precision_percent": 92.73032014857947,
+        "recall": 0.9270444519850696,
+        "recall_percent": 92.70444519850696,
+        "f1_score": 0.9269259670962982,
+        "f1_score_percent": 92.69259670962981,
+        "per_class_accuracy": {
+            "LAYING": 94.75806451612904,
+            "SITTING": 98.51380042462846,
+            "STANDING": 98.09523809523809,
+            "WALKING": 83.5030549898167,
+            "WALKING_DOWNSTAIRS": 83.0827067669173,
+            "WALKING_UPSTAIRS": 99.4413407821229
+        },
+        "confusion_matrix": [
+            [
+                470,
+                9,
+                17,
+                0,
+                0,
+                0
+            ],
+            [
+                2,
+                464,
+                5,
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                8,
+                412,
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                2,
+                2,
+                410,
+                71,
+                6
+            ],
+            [
+                0,
+                0,
+                1,
+                89,
+                442,
+                0
+            ],
+            [
+                0,
+                0,
+                0,
+                3,
+                0,
+                534
+            ]
+        ],
+        "classification_report": "                    precision    recall  f1-score   support\n\n            LAYING     0.9958    0.9476    0.9711       496\n           SITTING     0.9607    0.9851    0.9727       471\n          STANDING     0.9428    0.9810    0.9615       420\n           WALKING     0.8167    0.8350    0.8258       491\nWALKING_DOWNSTAIRS     0.8616    0.8308    0.8459       532\n  WALKING_UPSTAIRS     0.9889    0.9944    0.9916       537\n\n          accuracy                         0.9270      2947\n         macro avg     0.9277    0.9290    0.9281      2947\n      weighted avg     0.9273    0.9270    0.9269      2947\n"
+    },
+    {
+        "model": "CNN-LSTM",
+        "test_loss": 0.35476595163345337,
+        "test_accuracy": 0.9155072955548015,
+        "test_accuracy_percent": 91.55072955548015,
+        "precision": 0.9154311115301036,
+        "precision_percent": 91.54311115301036,
+        "recall": 0.9155072955548015,
+        "recall_percent": 91.55072955548015,
+        "f1_score": 0.9151450950322418,
+        "f1_score_percent": 91.51450950322419,
+        "per_class_accuracy": {
+            "LAYING": 96.16935483870968,
+            "SITTING": 94.90445859872611,
+            "STANDING": 95.71428571428572,
+            "WALKING": 81.4663951120163,
+            "WALKING_DOWNSTAIRS": 81.76691729323309,
+            "WALKING_UPSTAIRS": 100.0
+        },
+        "confusion_matrix": [
+            [
+                477,
+                0,
+                19,
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                447,
+                24,
+                0,
+                0,
+                0
+            ],
+            [
+                7,
+                11,
+                402,
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                25,
+                0,
+                400,
+                65,
+                1
+            ],
+            [
+                0,
+                4,
+                0,
+                93,
+                435,
+                0
+            ],
+            [
+                0,
+                0,
+                0,
+                0,
+                0,
+                537
+            ]
+        ],
+        "classification_report": "                    precision    recall  f1-score   support\n\n            LAYING     0.9855    0.9617    0.9735       496\n           SITTING     0.9179    0.9490    0.9332       471\n          STANDING     0.9034    0.9571    0.9295       420\n           WALKING     0.8114    0.8147    0.8130       491\nWALKING_DOWNSTAIRS     0.8700    0.8177    0.8430       532\n  WALKING_UPSTAIRS     0.9981    1.0000    0.9991       537\n\n          accuracy                         0.9155      2947\n         macro avg     0.9144    0.9167    0.9152      2947\n      weighted avg     0.9154    0.9155    0.9151      2947\n"
+    },
+    {
+        "model": "PROPOSED",
+        "test_loss": 0.41285440325737,
+        "test_accuracy": 0.9280624363759755,
+        "test_accuracy_percent": 92.80624363759755,
+        "precision": 0.929795491566306,
+        "precision_percent": 92.9795491566306,
+        "recall": 0.9280624363759755,
+        "recall_percent": 92.80624363759755,
+        "f1_score": 0.9277472791563857,
+        "f1_score_percent": 92.77472791563856,
+        "per_class_accuracy": {
+            "LAYING": 95.56451612903226,
+            "SITTING": 95.54140127388536,
+            "STANDING": 99.76190476190476,
+            "WALKING": 77.18940936863544,
+            "WALKING_DOWNSTAIRS": 89.47368421052632,
+            "WALKING_UPSTAIRS": 100.0
+        },
+        "confusion_matrix": [
+            [
+                474,
+                3,
+                19,
+                0,
+                0,
+                0
+            ],
+            [
+                1,
+                450,
+                20,
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                1,
+                419,
+                0,
+                0,
+                0
+            ],
+            [
+                0,
+                5,
+                0,
+                379,
+                107,
+                0
+            ],
+            [
+                0,
+                0,
+                0,
+                56,
+                476,
+                0
+            ],
+            [
+                0,
+                0,
+                0,
+                0,
+                0,
+                537
+            ]
+        ],
+        "classification_report": "                    precision    recall  f1-score   support\n\n            LAYING     0.9979    0.9556    0.9763       496\n           SITTING     0.9804    0.9554    0.9677       471\n          STANDING     0.9148    0.9976    0.9544       420\n           WALKING     0.8713    0.7719    0.8186       491\nWALKING_DOWNSTAIRS     0.8165    0.8947    0.8538       532\n  WALKING_UPSTAIRS     1.0000    1.0000    1.0000       537\n\n          accuracy                         0.9281      2947\n         macro avg     0.9301    0.9292    0.9285      2947\n      weighted avg     0.9298    0.9281    0.9277      2947\n"
+    }
+]

@@ -1,0 +1,34 @@
+======================================================================
+MODEL: LSTM
+======================================================================
+
+Test Loss     : 0.281352
+Test Accuracy : 90.57%
+Precision     : 90.64%
+Recall        : 90.57%
+F1-Score      : 90.56%
+
+CLASSIFICATION REPORT
+======================================================================
+
+                    precision    recall  f1-score   support
+
+            LAYING     0.9474    0.9435    0.9455       496
+           SITTING     0.9524    0.9342    0.9432       471
+          STANDING     0.9197    0.9548    0.9369       420
+           WALKING     0.7780    0.8350    0.8055       491
+WALKING_DOWNSTAIRS     0.8429    0.7763    0.8082       532
+  WALKING_UPSTAIRS     0.9981    1.0000    0.9991       537
+
+          accuracy                         0.9057      2947
+         macro avg     0.9064    0.9073    0.9064      2947
+      weighted avg     0.9064    0.9057    0.9056      2947
+
+PER-CLASS ACCURACY
+======================================================================
+LAYING                   : 94.35%
+SITTING                  : 93.42%
+STANDING                 : 95.48%
+WALKING                  : 83.50%
+WALKING_DOWNSTAIRS       : 77.63%
+WALKING_UPSTAIRS         : 100.00%

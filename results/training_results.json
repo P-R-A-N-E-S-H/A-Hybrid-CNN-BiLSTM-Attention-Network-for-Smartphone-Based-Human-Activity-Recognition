@@ -1,0 +1,47 @@
+{
+    "cnn": {
+        "best_epoch": 3,
+        "best_val_accuracy": 0.9639700651168823,
+        "best_val_loss": 0.13868597149848938,
+        "test_loss": 0.27471959590911865,
+        "test_accuracy": 0.9185612201690674,
+        "test_accuracy_percentage": 91.85612201690674,
+        "model_path": "C:\\Users\\PRANESH.M\\OneDrive\\Desktop\\deep_learning\\models\\trained\\cnn.keras"
+    },
+    "lstm": {
+        "best_epoch": 4,
+        "best_val_accuracy": 0.9585316181182861,
+        "best_val_loss": 0.1163339838385582,
+        "test_loss": 0.2813515365123749,
+        "test_accuracy": 0.9056667685508728,
+        "test_accuracy_percentage": 90.56667685508728,
+        "model_path": "C:\\Users\\PRANESH.M\\OneDrive\\Desktop\\deep_learning\\models\\trained\\lstm.keras"
+    },
+    "bilstm": {
+        "best_epoch": 25,
+        "best_val_accuracy": 0.9639700651168823,
+        "best_val_loss": 0.10039620101451874,
+        "test_loss": 0.2814640402793884,
+        "test_accuracy": 0.9270444512367249,
+        "test_accuracy_percentage": 92.70444512367249,
+        "model_path": "C:\\Users\\PRANESH.M\\OneDrive\\Desktop\\deep_learning\\models\\trained\\bilstm.keras"
+    },
+    "cnn_lstm": {
+        "best_epoch": 11,
+        "best_val_accuracy": 0.963290274143219,
+        "best_val_loss": 0.10787447541952133,
+        "test_loss": 0.35476595163345337,
+        "test_accuracy": 0.9155073165893555,
+        "test_accuracy_percentage": 91.55073165893555,
+        "model_path": "C:\\Users\\PRANESH.M\\OneDrive\\Desktop\\deep_learning\\models\\trained\\cnn_lstm.keras"
+    },
+    "proposed": {
+        "best_epoch": 19,
+        "best_val_accuracy": 0.9646499156951904,
+        "best_val_loss": 0.16289325058460236,
+        "test_loss": 0.41285440325737,
+        "test_accuracy": 0.9280624389648438,
+        "test_accuracy_percentage": 92.80624389648438,
+        "model_path": "C:\\Users\\PRANESH.M\\OneDrive\\Desktop\\deep_learning\\models\\trained\\proposed.keras"
+    }
+}
