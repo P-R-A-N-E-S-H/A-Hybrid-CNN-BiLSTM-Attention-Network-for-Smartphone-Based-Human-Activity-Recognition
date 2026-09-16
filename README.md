@@ -1,6 +1,3 @@
-Yes. **Copy everything inside this single code block and paste it directly into `README.md` on GitHub.**
-
-````markdown
 # 🛡️ Wearable AI — Real-Time Human Activity & Fall Detection
 
 <p align="center">
@@ -122,7 +119,7 @@ The Android application performs preprocessing, feature engineering, sliding-win
                     ┌──────────┼──────────┐
                     ▼          ▼          ▼
                    GPS        SMS       CLOUD
-````
+```
 
 ---
 
@@ -1501,4 +1498,3 @@ Choose and add an appropriate open-source license before public distribution.
 <b>🚀 Wearable AI — From Sensor Signals to Real-Time Intelligence</b>
 
 </p>
-```
