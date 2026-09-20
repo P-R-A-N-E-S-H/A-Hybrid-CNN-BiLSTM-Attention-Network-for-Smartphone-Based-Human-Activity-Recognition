@@ -162,58 +162,67 @@ function connectWebSocket() {
     };
 }
 
-// 5. Sensor Sample Handler (50Hz chart update & 3D spatial rotation)
-function handleSensorSample(sample) {
-    if (!sensorChart) return;
+// 5. High-Performance Sensor Sample Handler (RAF Batched 60 FPS)
+let pendingSample = null;
+let rafChartId = null;
 
+function handleSensorSample(sample) {
+    pendingSample = sample;
     packetCounter++;
+
     const now = performance.now();
     if (now - lastFpsTime >= 1000) {
-        document.getElementById("telemetry-fps").textContent = packetCounter.toFixed(1);
+        const fpsElem = document.getElementById("telemetry-fps");
+        if (fpsElem) fpsElem.textContent = packetCounter.toFixed(1);
         packetCounter = 0;
         lastFpsTime = now;
     }
 
-    // Chart Push
-    sensorChart.data.datasets[0].data.push(sample.ax);
-    sensorChart.data.datasets[0].data.shift();
+    // High-G Impact Fall Detection Trigger
+    const ax = sample.ax, ay = sample.ay, az = sample.az;
+    const totalAccel = Math.sqrt(ax * ax + ay * ay + az * az);
+    if (totalAccel > 2.6) {
+        lastImpactPeakTime = Date.now();
+    }
 
-    sensorChart.data.datasets[1].data.push(sample.ay);
-    sensorChart.data.datasets[1].data.shift();
+    if (!rafChartId) {
+        rafChartId = requestAnimationFrame(renderSensorFrame);
+    }
+}
 
-    sensorChart.data.datasets[2].data.push(sample.az);
-    sensorChart.data.datasets[2].data.shift();
+function renderSensorFrame() {
+    rafChartId = null;
+    if (!pendingSample || !sensorChart) return;
 
-    sensorChart.data.datasets[3].data.push(sample.gx);
-    sensorChart.data.datasets[3].data.shift();
+    const sample = pendingSample;
 
-    sensorChart.data.datasets[4].data.push(sample.gy);
-    sensorChart.data.datasets[4].data.shift();
-
-    sensorChart.data.datasets[5].data.push(sample.gz);
-    sensorChart.data.datasets[5].data.shift();
+    // Fast shift & push for Chart.js
+    const d = sensorChart.data.datasets;
+    d[0].data.push(sample.ax); d[0].data.shift();
+    d[1].data.push(sample.ay); d[1].data.shift();
+    d[2].data.push(sample.az); d[2].data.shift();
+    d[3].data.push(sample.gx); d[3].data.shift();
+    d[4].data.push(sample.gy); d[4].data.shift();
+    d[5].data.push(sample.gz); d[5].data.shift();
 
     sensorChart.update('none');
 
-    // 3D Spatial Orientation (Roll & Pitch Calculation)
+    // Fast 3D Spatial Orientation (Roll & Pitch)
     const ax = sample.ax, ay = sample.ay, az = sample.az;
     const pitch = Math.atan2(ax, Math.sqrt(ay * ay + az * az)) * (180.0 / Math.PI);
     const roll = Math.atan2(ay, Math.sqrt(ax * ax + az * az)) * (180.0 / Math.PI);
     const yaw = (sample.gz * 10.0) % 360;
 
-    document.getElementById("angle-pitch").textContent = `Pitch: ${pitch >= 0 ? '+' : ''}${pitch.toFixed(1)}°`;
-    document.getElementById("angle-roll").textContent = `Roll: ${roll >= 0 ? '+' : ''}${roll.toFixed(1)}°`;
-    document.getElementById("angle-yaw").textContent = `Yaw: ${yaw.toFixed(1)}°`;
+    const pitchEl = document.getElementById("angle-pitch");
+    const rollEl = document.getElementById("angle-roll");
+    const yawEl = document.getElementById("angle-yaw");
+    if (pitchEl) pitchEl.textContent = `Pitch: ${pitch >= 0 ? '+' : ''}${pitch.toFixed(1)}°`;
+    if (rollEl) rollEl.textContent = `Roll: ${roll >= 0 ? '+' : ''}${roll.toFixed(1)}°`;
+    if (yawEl) yawEl.textContent = `Yaw: ${yaw.toFixed(1)}°`;
 
     const cube = document.getElementById("imu-cube");
     if (cube) {
         cube.style.transform = `rotateX(${-pitch.toFixed(1)}deg) rotateY(${roll.toFixed(1)}deg) rotateZ(${yaw.toFixed(1)}deg)`;
-    }
-
-    // High-G Impact Fall Detection Trigger
-    const totalAccel = Math.sqrt(ax * ax + ay * ay + az * az);
-    if (totalAccel > 2.6) {
-        lastImpactPeakTime = Date.now();
     }
 }
 
@@ -223,18 +232,27 @@ function handleInferenceUpdate(pred) {
     const meta = ACTIVITY_META[activity] || ACTIVITY_META["UNKNOWN"];
     const confPct = (pred.confidence * 100).toFixed(1);
 
-    // Update Posture & Title
-    document.getElementById("activity-icon").textContent = meta.icon;
-    document.getElementById("predicted-activity").textContent = meta.label;
-    document.getElementById("predicted-activity").style.color = meta.color;
+    // Fast Update Posture & Title
+    const iconEl = document.getElementById("activity-icon");
+    const titleEl = document.getElementById("predicted-activity");
+    if (iconEl) iconEl.textContent = meta.icon;
+    if (titleEl) {
+        titleEl.textContent = meta.label;
+        titleEl.style.color = meta.color;
+    }
 
     const ring = document.getElementById("posture-ring");
-    ring.style.borderColor = meta.color;
-    ring.style.boxShadow = `0 0 30px ${meta.color}66`;
+    if (ring) {
+        ring.style.borderColor = meta.color;
+        ring.style.boxShadow = `0 0 30px ${meta.color}66`;
+    }
 
-    document.getElementById("confidence-badge").textContent = `Confidence: ${confPct}%`;
-    document.getElementById("activity-duration").textContent = `${pred.activity_duration_sec}s`;
-    document.getElementById("telemetry-latency").textContent = `${pred.latency_ms} ms`;
+    const confEl = document.getElementById("confidence-badge");
+    const durEl = document.getElementById("activity-duration");
+    const latEl = document.getElementById("telemetry-latency");
+    if (confEl) confEl.textContent = `Confidence: ${confPct}%`;
+    if (durEl) durEl.textContent = `${pred.activity_duration_sec}s`;
+    if (latEl) latEl.textContent = `${pred.latency_ms} ms`;
 
     // Render Probabilities
     renderProbabilities(pred.probabilities);
@@ -247,7 +265,7 @@ function handleInferenceUpdate(pred) {
     // Voice Announcement
     announceActivity(activity, confPct);
 
-    // Check Fall Emergency condition (Impact peak > 2.6g within 3 seconds followed by Laying)
+    // Check Fall Emergency condition (Impact peak > 2.6g within 3.5 seconds followed by Laying)
     if (activity === "LAYING" && (Date.now() - lastImpactPeakTime < 3500) && !isFallAlertActive) {
         triggerFallAlert();
     }
@@ -256,44 +274,66 @@ function handleInferenceUpdate(pred) {
 function triggerFallAlert() {
     isFallAlertActive = true;
     const banner = document.getElementById("fall-alert-banner");
-    banner.classList.remove("hidden");
+    if (banner) banner.classList.remove("hidden");
     speakText("Emergency alert! High impact fall detected! Patient is in laying posture.");
 }
 
 function dismissFallAlert() {
     isFallAlertActive = false;
-    document.getElementById("fall-alert-banner").classList.add("hidden");
+    const banner = document.getElementById("fall-alert-banner");
+    if (banner) banner.classList.add("hidden");
 }
 
-// 7. Render Probability Bars
-function renderProbabilities(probs) {
+// 7. Cached Fast Render Probability Bars (No DOM destruction)
+let probElementsMap = {};
+
+function initProbabilities() {
     const container = document.getElementById("probability-bars");
+    if (!container) return;
     container.innerHTML = "";
+    probElementsMap = {};
 
-    const sorted = Object.entries(probs).sort((a, b) => b[1] - a[1]);
-
-    sorted.forEach(([name, val]) => {
+    const activities = ["LAYING", "SITTING", "STANDING", "WALKING", "WALKING_DOWNSTAIRS", "WALKING_UPSTAIRS"];
+    activities.forEach(name => {
         const meta = ACTIVITY_META[name] || { label: name, color: "#6366f1" };
-        const pct = (val * 100).toFixed(1);
-
         const row = document.createElement("div");
         row.className = "prob-row";
+        row.id = `prob-row-${name}`;
         row.innerHTML = `
             <div class="prob-info">
                 <span>${meta.label}</span>
-                <span style="color:${meta.color}; font-weight:700;">${pct}%</span>
+                <span id="prob-val-${name}" style="color:${meta.color}; font-weight:700;">0.0%</span>
             </div>
             <div class="prob-bar-track">
-                <div class="prob-bar-fill" style="width: ${pct}%; background: ${meta.color};"></div>
+                <div id="prob-fill-${name}" class="prob-bar-fill" style="width: 0%; background: ${meta.color};"></div>
             </div>
         `;
         container.appendChild(row);
+        probElementsMap[name] = {
+            valEl: row.querySelector(`#prob-val-${name}`),
+            fillEl: row.querySelector(`#prob-fill-${name}`)
+        };
     });
 }
 
-// 8. Render Attention Heatmap
+function renderProbabilities(probs) {
+    if (Object.keys(probElementsMap).length === 0) {
+        initProbabilities();
+    }
+    for (const [name, val] of Object.entries(probs)) {
+        const targets = probElementsMap[name];
+        if (targets) {
+            const pct = (val * 100).toFixed(1);
+            targets.valEl.textContent = `${pct}%`;
+            targets.fillEl.style.width = `${pct}%`;
+        }
+    }
+}
+
+// 8. Render Attention Heatmap (Optimized)
 function renderAttentionHeatmap(weights) {
-    weights.forEach((w, i) => {
+    for (let i = 0; i < weights.length; i++) {
+        const w = weights[i];
         const bar = document.getElementById(`attn-bar-${i}`);
         if (bar) {
             const h = Math.max(10, Math.min(100, w * 100));
@@ -306,8 +346,9 @@ function renderAttentionHeatmap(weights) {
                 bar.style.background = "rgba(99, 102, 241, 0.3)";
             }
         }
-    });
+    }
 }
+
 
 // 9. User Action Controls
 function setSource(mode) {
