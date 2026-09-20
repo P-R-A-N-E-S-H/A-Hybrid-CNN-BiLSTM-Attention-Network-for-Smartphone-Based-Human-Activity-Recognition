@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAR Deep Learning & IoT Telemetry Review Deck</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for high-speed sensor rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation Header -->
+        <header class="navbar glass">
+            <div class="brand">
+                <div class="logo-pulse"></div>
+                <div class="brand-text">
+                    <h1>HAR-DeepSense <span class="badge-pro">PRO v2.0</span></h1>
+                    <p class="subtitle">Hybrid Residual CNN-BiLSTM-MHA-SE & IoT Hardware Edge AI</p>
+                </div>
+            </div>
+            <div class="nav-controls">
+                <div class="status-pill" id="connection-pill">
+                    <span class="dot disconnected"></span>
+                    <span id="conn-status-text">Connecting...</span>
+                </div>
+                <div class="system-stats">
+                    <div class="stat-item"><span class="stat-label">FPS:</span> <span id="telemetry-fps" class="stat-val">50.0</span></div>
+                    <div class="stat-item"><span class="stat-label">Inference:</span> <span id="telemetry-latency" class="stat-val">1.2 ms</span></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <main class="dashboard-grid">
+            
+            <!-- LEFT COLUMN: Live Telemetry & Classification -->
+            <section class="card glass hero-panel">
+                <div class="card-header">
+                    <h2><span class="icon">⚡</span> Real-Time Activity Classifier</h2>
+                    <div class="source-tag" id="source-badge">VIRTUAL SENSOR</div>
+                </div>
+
+                <div class="classification-showcase">
+                    <!-- Dynamic Posture Visualizer -->
+                    <div class="posture-avatar-box">
+                        <div class="posture-ring" id="posture-ring">
+                            <div class="activity-emoji" id="activity-icon">🚶</div>
+                        </div>
+                        <div class="active-activity-title" id="predicted-activity">WALKING</div>
+                        <div class="confidence-badge" id="confidence-badge">Confidence: 98.4%</div>
+                        <div class="duration-counter">Duration: <span id="activity-duration">0.0s</span></div>
+                    </div>
+
+                    <!-- Probability Bars Breakdown -->
+                    <div class="probabilities-container">
+                        <h3>Class Probabilities (Softmax)</h3>
+                        <div class="prob-list" id="probability-bars">
+                            <!-- Dynamic Bars will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hardware Control Deck -->
+                <div class="hardware-deck glass-sub">
+                    <div class="deck-header">
+                        <h3><span class="icon">🎮</span> Sensor Source & Hardware Emulation</h3>
+                        <div class="segmented-control">
+                            <button class="seg-btn active" id="btn-mode-virtual" onclick="setSource('virtual')">Virtual Sensor</button>
+                            <button class="seg-btn" id="btn-mode-hardware" onclick="setSource('hardware')">Physical COM</button>
+                        </div>
+                    </div>
+
+                    <!-- Virtual Controls -->
+                    <div id="virtual-controls" class="control-panel active">
+                        <span class="deck-label">Trigger Simulated Motion:</span>
+                        <div class="activity-btn-grid">
+                            <button class="act-btn active" onclick="triggerActivity('WALKING')">🚶 Walking</button>
+                            <button class="act-btn" onclick="triggerActivity('WALKING_UPSTAIRS')">🧗 Upstairs</button>
+                            <button class="act-btn" onclick="triggerActivity('WALKING_DOWNSTAIRS')">⛷️ Downstairs</button>
+                            <button class="act-btn" onclick="triggerActivity('SITTING')">🪑 Sitting</button>
+                            <button class="act-btn" onclick="triggerActivity('STANDING')">🧍 Standing</button>
+                            <button class="act-btn" onclick="triggerActivity('LAYING')">🛌 Laying</button>
+                        </div>
+                    </div>
+
+                    <!-- Hardware COM Controls -->
+                    <div id="hardware-controls" class="control-panel">
+                        <div class="port-selection-row">
+                            <select id="com-port-select" class="form-select">
+                                <option value="">Scanning COM Ports...</option>
+                            </select>
+                            <button class="btn-primary" onclick="connectHardwarePort()">Connect Port</button>
+                            <button class="btn-secondary" onclick="refreshPorts()">🔄</button>
+                        </div>
+                        <p class="hw-tip">Connect ESP32 or Arduino @ 115200 baud with MPU-6050.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN: Sensor Waveforms & Attention Heatmap -->
+            <section class="card glass telemetry-panel">
+                <div class="card-header">
+                    <h2><span class="icon">📈</span> Live 6-DOF IMU Sensor Telemetry (50 Hz)</h2>
+                    <div class="sensor-legends">
+                        <span class="leg leg-ax">Acc-X</span>
+                        <span class="leg leg-ay">Acc-Y</span>
+                        <span class="leg leg-az">Acc-Z</span>
+                        <span class="leg leg-gx">Gyro-X</span>
+                        <span class="leg leg-gy">Gyro-Y</span>
+                        <span class="leg leg-gz">Gyro-Z</span>
+                    </div>
+                </div>
+
+                <!-- Live Multi-Channel Chart -->
+                <div class="chart-container">
+                    <canvas id="sensorWaveChart"></canvas>
+                </div>
+
+                <!-- Temporal Attention Weights Heatmap -->
+                <div class="attention-explorer glass-sub">
+                    <div class="attn-header">
+                        <h3><span class="icon">🔍</span> Multi-Head Temporal Attention Weights (128 Timesteps)</h3>
+                        <span class="attn-sub">Active receptive focus across 2.56s window</span>
+                    </div>
+                    <div class="attention-heatmap-canvas" id="attention-heatmap-container">
+                        <!-- 128 Attention bars -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- BOTTOM SECTION: Model Comparison Arena & Edge AI Metrics -->
+            <section class="card glass comparison-panel full-width">
+                <div class="card-header">
+                    <h2><span class="icon">🏆</span> Final Review Model Arena & Edge AI Profiling</h2>
+                    <div class="model-selector-box">
+                        <label for="model-selector">Active Evaluation Model:</label>
+                        <select id="model-selector" onchange="switchModel(this.value)">
+                            <option value="proposed" selected>⭐ Proposed: Residual CNN + SE + BiLSTM + MHA (96.9% Acc)</option>
+                            <option value="cnn_lstm">CNN-LSTM Baseline (93.3% Acc)</option>
+                            <option value="bilstm">Bidirectional LSTM Baseline (92.4% Acc)</option>
+                            <option value="cnn">1D Convolutional Neural Network (91.1% Acc)</option>
+                            <option value="lstm">Unidirectional LSTM Baseline (89.8% Acc)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="comparison-grid">
+                    <!-- Metric Cards -->
+                    <div class="metric-card glow-blue">
+                        <div class="metric-title">Test Accuracy</div>
+                        <div class="metric-value" id="card-acc">96.88%</div>
+                        <div class="metric-diff text-success">+5.78% vs Baseline</div>
+                    </div>
+                    <div class="metric-card glow-purple">
+                        <div class="metric-title">Macro F1-Score</div>
+                        <div class="metric-value" id="card-f1">0.9685</div>
+                        <div class="metric-diff text-success">Optimal Precision/Recall</div>
+                    </div>
+                    <div class="metric-card glow-emerald">
+                        <div class="metric-title">Edge Latency (TFLite INT8)</div>
+                        <div class="metric-value" id="card-latency">0.72 ms</div>
+                        <div class="metric-diff text-success">1,388 FPS Throughput</div>
+                    </div>
+                    <div class="metric-card glow-amber">
+                        <div class="metric-title">Embedded Flash Footprint</div>
+                        <div class="metric-value" id="card-size">960 KB</div>
+                        <div class="metric-diff text-success">Deployable on ESP32 / Cortex-M</div>
+                    </div>
+                </div>
+
+                <!-- Edge AI Benchmarks Table -->
+                <div class="table-responsive">
+                    <table class="benchmark-table">
+                        <thead>
+                            <tr>
+                                <th>Deployment Format</th>
+                                <th>Precision</th>
+                                <th>Memory Footprint</th>
+                                <th>Inference Latency (P50)</th>
+                                <th>Throughput</th>
+                                <th>Target Hardware Platform</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="benchmark-tbody">
+                            <tr>
+                                <td><strong>Keras Native</strong></td>
+                                <td>Float32</td>
+                                <td>15.26 MB</td>
+                                <td>3.85 ms</td>
+                                <td>259.7 FPS</td>
+                                <td>Cloud / Workstation GPU/CPU</td>
+                                <td><span class="tag tag-ready">Verified</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>TFLite Standard</strong></td>
+                                <td>Float32</td>
+                                <td>3.84 MB</td>
+                                <td>1.85 ms</td>
+                                <td>540.5 FPS</td>
+                                <td>Raspberry Pi 4 / Mobile</td>
+                                <td><span class="tag tag-ready">Optimized</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>TFLite FP16 Quantized</strong></td>
+                                <td>Float16</td>
+                                <td>1.92 MB</td>
+                                <td>1.18 ms</td>
+                                <td>847.4 FPS</td>
+                                <td>Edge TPU / Jetson Nano / NPU</td>
+                                <td><span class="tag tag-ready">Optimized</span></td>
+                            </tr>
+                            <tr class="highlight-row">
+                                <td><strong>TFLite INT8 Post-Training</strong></td>
+                                <td>INT8 (Calibrated)</td>
+                                <td>0.96 MB (960 KB)</td>
+                                <td>0.72 ms</td>
+                                <td>1,388.8 FPS</td>
+                                <td>ESP32 / Arduino / Cortex-M4/M7</td>
+                                <td><span class="tag tag-best">Recommended</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Human Activity Recognition (HAR) Deep Learning & IoT System | Author: <strong>Pranesh</strong> | Final Review Defense Release</p>
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
