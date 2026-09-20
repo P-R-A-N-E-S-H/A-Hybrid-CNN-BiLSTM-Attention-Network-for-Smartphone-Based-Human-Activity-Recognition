@@ -18,11 +18,21 @@
             <div class="brand">
                 <div class="logo-pulse"></div>
                 <div class="brand-text">
-                    <h1>HAR-DeepSense <span class="badge-pro">PRO v2.0</span></h1>
+                    <h1>HAR-DeepSense <span class="badge-pro">PRO v2.5</span></h1>
                     <p class="subtitle">Hybrid Residual CNN-BiLSTM-MHA-SE & IoT Hardware Edge AI</p>
                 </div>
             </div>
             <div class="nav-controls">
+                <!-- Voice Feedback Announcer Toggle -->
+                <button id="btn-voice-toggle" class="btn-voice" onclick="toggleVoice()">
+                    <span id="voice-icon">🔊</span> <span id="voice-label">Voice Alert: ON</span>
+                </button>
+
+                <!-- One-Click Export Report -->
+                <button class="btn-export" onclick="exportReviewReport()">
+                    <span>📄</span> Export Report
+                </button>
+
                 <div class="status-pill" id="connection-pill">
                     <span class="dot disconnected"></span>
                     <span id="conn-status-text">Connecting...</span>
@@ -33,6 +43,18 @@
                 </div>
             </div>
         </header>
+
+        <!-- Emergency Fall & Impact Detection Alert Banner -->
+        <div id="fall-alert-banner" class="fall-banner hidden">
+            <div class="fall-content">
+                <div class="fall-icon-pulse">⚠️</div>
+                <div class="fall-text">
+                    <strong>EMERGENCY IMPACT DETECTED!</strong>
+                    <span id="fall-details">High-G impact followed by rapid transition to LAYING posture.</span>
+                </div>
+            </div>
+            <button class="btn-dismiss-fall" onclick="dismissFallAlert()">Dismiss Alert</button>
+        </div>
 
         <!-- Main Dashboard Grid -->
         <main class="dashboard-grid">
@@ -50,7 +72,7 @@
                         <div class="posture-ring" id="posture-ring">
                             <div class="activity-emoji" id="activity-icon">🚶</div>
                         </div>
-                        <div class="active-activity-title" id="predicted-activity">WALKING</div>
+                        <div class="active-activity-title" id="predicted-activity">[3] WALKING</div>
                         <div class="confidence-badge" id="confidence-badge">Confidence: 98.4%</div>
                         <div class="duration-counter">Duration: <span id="activity-duration">0.0s</span></div>
                     </div>
@@ -59,7 +81,7 @@
                     <div class="probabilities-container">
                         <h3>Class Probabilities (Softmax)</h3>
                         <div class="prob-list" id="probability-bars">
-                            <!-- Dynamic Bars will be inserted here -->
+                            <!-- Dynamic Bars inserted via app.js -->
                         </div>
                     </div>
                 </div>
@@ -78,12 +100,12 @@
                     <div id="virtual-controls" class="control-panel active">
                         <span class="deck-label">Trigger Simulated Motion:</span>
                         <div class="activity-btn-grid">
-                            <button class="act-btn active" onclick="triggerActivity('WALKING')">🚶 Walking</button>
-                            <button class="act-btn" onclick="triggerActivity('WALKING_UPSTAIRS')">🧗 Upstairs</button>
-                            <button class="act-btn" onclick="triggerActivity('WALKING_DOWNSTAIRS')">⛷️ Downstairs</button>
-                            <button class="act-btn" onclick="triggerActivity('SITTING')">🪑 Sitting</button>
-                            <button class="act-btn" onclick="triggerActivity('STANDING')">🧍 Standing</button>
-                            <button class="act-btn" onclick="triggerActivity('LAYING')">🛌 Laying</button>
+                            <button class="act-btn active" onclick="triggerActivity('WALKING')">🚶 [3] Walking</button>
+                            <button class="act-btn" onclick="triggerActivity('WALKING_UPSTAIRS')">🧗 [5] Upstairs</button>
+                            <button class="act-btn" onclick="triggerActivity('WALKING_DOWNSTAIRS')">⛷️ [4] Downstairs</button>
+                            <button class="act-btn" onclick="triggerActivity('SITTING')">🪑 [1] Sitting</button>
+                            <button class="act-btn" onclick="triggerActivity('STANDING')">🧍 [2] Standing</button>
+                            <button class="act-btn" onclick="triggerActivity('LAYING')">🛌 [0] Laying</button>
                         </div>
                     </div>
 
@@ -101,7 +123,7 @@
                 </div>
             </section>
 
-            <!-- RIGHT COLUMN: Sensor Waveforms & Attention Heatmap -->
+            <!-- RIGHT COLUMN: Sensor Waveforms, 3D Orientation & Attention Heatmap -->
             <section class="card glass telemetry-panel">
                 <div class="card-header">
                     <h2><span class="icon">📈</span> Live 6-DOF IMU Sensor Telemetry (50 Hz)</h2>
@@ -118,6 +140,28 @@
                 <!-- Live Multi-Channel Chart -->
                 <div class="chart-container">
                     <canvas id="sensorWaveChart"></canvas>
+                </div>
+
+                <!-- 3D IMU Spatial Orientation Box & Angle Tracker -->
+                <div class="orientation-panel glass-sub">
+                    <div class="orient-header">
+                        <h3><span class="icon">🧭</span> 3D IMU Spatial Orientation (Roll / Pitch / Yaw)</h3>
+                        <div class="angle-tags">
+                            <span class="angle-pill" id="angle-pitch">Pitch: +0.0°</span>
+                            <span class="angle-pill" id="angle-roll">Roll: +0.0°</span>
+                            <span class="angle-pill" id="angle-yaw">Yaw: +0.0°</span>
+                        </div>
+                    </div>
+                    <div class="imu-3d-scene">
+                        <div class="imu-3d-cube" id="imu-cube">
+                            <div class="cube-face front">MPU-6050 TOP</div>
+                            <div class="cube-face back">BOTTOM</div>
+                            <div class="cube-face top">Y+ (UP)</div>
+                            <div class="cube-face bottom">Y- (DOWN)</div>
+                            <div class="cube-face right">X+ (RIGHT)</div>
+                            <div class="cube-face left">X- (LEFT)</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Temporal Attention Weights Heatmap -->

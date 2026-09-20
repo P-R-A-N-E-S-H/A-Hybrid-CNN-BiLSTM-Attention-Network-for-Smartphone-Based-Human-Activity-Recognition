@@ -39,3 +39,7 @@ out_eval.txt
 # OS Generated
 .DS_Store
 Thumbs.db
+
+# Driver installers
+drivers/
+

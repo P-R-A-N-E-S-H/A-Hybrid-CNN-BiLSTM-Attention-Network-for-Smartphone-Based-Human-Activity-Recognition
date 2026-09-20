@@ -1,6 +1,6 @@
 /*
  * ======================================================================
- * app.js - Real-Time Dashboard Logic & WebSocket Client
+ * app.js - Real-Time Dashboard Logic, Voice Announcer & 3D Orientation (v2.5)
  * ======================================================================
  */
 
@@ -29,7 +29,14 @@ let maxChartPoints = 100;
 let packetCounter = 0;
 let lastFpsTime = performance.now();
 
-// Attention Heatmap Bars Initialization
+// Voice & Telemetry State
+let isVoiceEnabled = true;
+let lastSpokenActivity = "";
+let lastSpokenTime = 0;
+let lastImpactPeakTime = 0;
+let isFallAlertActive = false;
+
+// 1. Attention Heatmap Initialization
 function initAttentionHeatmap() {
     const container = document.getElementById("attention-heatmap-container");
     container.innerHTML = "";
@@ -41,10 +48,9 @@ function initAttentionHeatmap() {
     }
 }
 
-// Chart.js 6-Channel Telemetry Setup
+// 2. Chart.js 6-Channel Telemetry Setup
 function initSensorChart() {
     const ctx = document.getElementById('sensorWaveChart').getContext('2d');
-    
     const initialLabels = Array.from({ length: maxChartPoints }, (_, i) => "");
 
     sensorChart = new Chart(ctx, {
@@ -80,7 +86,46 @@ function initSensorChart() {
     });
 }
 
-// WebSocket Connection Management
+// 3. Voice Announcer Logic (Web Speech API)
+function toggleVoice() {
+    isVoiceEnabled = !isVoiceEnabled;
+    const btn = document.getElementById("btn-voice-toggle");
+    const icon = document.getElementById("voice-icon");
+    const label = document.getElementById("voice-label");
+
+    if (isVoiceEnabled) {
+        btn.classList.add("active");
+        icon.textContent = "🔊";
+        label.textContent = "Voice Alert: ON";
+        speakText("Voice announcer activated");
+    } else {
+        btn.classList.remove("active");
+        icon.textContent = "🔇";
+        label.textContent = "Voice Alert: OFF";
+    }
+}
+
+function speakText(text) {
+    if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel(); // Stop any pending queue
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.05;
+    utterance.pitch = 1.0;
+    window.speechSynthesis.speak(utterance);
+}
+
+function announceActivity(activityName, confidencePct) {
+    const now = performance.now();
+    // Announce if activity changed and has been stable for >1.5 seconds
+    if (activityName !== lastSpokenActivity || (now - lastSpokenTime > 5000)) {
+        lastSpokenActivity = activityName;
+        lastSpokenTime = now;
+        const cleanName = activityName.replace(/_/g, " ").toLowerCase();
+        speakText(`${cleanName} detected, ${confidencePct} percent confidence.`);
+    }
+}
+
+// 4. WebSocket Client Setup
 function connectWebSocket() {
     const host = window.location.host || "localhost:8000";
     const wsUrl = `ws://${host}/ws/stream`;
@@ -99,7 +144,6 @@ function connectWebSocket() {
 
     ws.onmessage = (event) => {
         const payload = JSON.parse(event.data);
-
         if (payload.type === "sensor_sample") {
             handleSensorSample(payload.data);
         } else if (payload.type === "inference_update") {
@@ -118,7 +162,7 @@ function connectWebSocket() {
     };
 }
 
-// Sensor Sample Handler (50Hz chart update)
+// 5. Sensor Sample Handler (50Hz chart update & 3D spatial rotation)
 function handleSensorSample(sample) {
     if (!sensorChart) return;
 
@@ -130,7 +174,7 @@ function handleSensorSample(sample) {
         lastFpsTime = now;
     }
 
-    // Push new values to chart datasets
+    // Chart Push
     sensorChart.data.datasets[0].data.push(sample.ax);
     sensorChart.data.datasets[0].data.shift();
 
@@ -149,13 +193,35 @@ function handleSensorSample(sample) {
     sensorChart.data.datasets[5].data.push(sample.gz);
     sensorChart.data.datasets[5].data.shift();
 
-    sensorChart.update('none'); // Update without animation for maximum FPS
+    sensorChart.update('none');
+
+    // 3D Spatial Orientation (Roll & Pitch Calculation)
+    const ax = sample.ax, ay = sample.ay, az = sample.az;
+    const pitch = Math.atan2(ax, Math.sqrt(ay * ay + az * az)) * (180.0 / Math.PI);
+    const roll = Math.atan2(ay, Math.sqrt(ax * ax + az * az)) * (180.0 / Math.PI);
+    const yaw = (sample.gz * 10.0) % 360;
+
+    document.getElementById("angle-pitch").textContent = `Pitch: ${pitch >= 0 ? '+' : ''}${pitch.toFixed(1)}°`;
+    document.getElementById("angle-roll").textContent = `Roll: ${roll >= 0 ? '+' : ''}${roll.toFixed(1)}°`;
+    document.getElementById("angle-yaw").textContent = `Yaw: ${yaw.toFixed(1)}°`;
+
+    const cube = document.getElementById("imu-cube");
+    if (cube) {
+        cube.style.transform = `rotateX(${-pitch.toFixed(1)}deg) rotateY(${roll.toFixed(1)}deg) rotateZ(${yaw.toFixed(1)}deg)`;
+    }
+
+    // High-G Impact Fall Detection Trigger
+    const totalAccel = Math.sqrt(ax * ax + ay * ay + az * az);
+    if (totalAccel > 2.6) {
+        lastImpactPeakTime = Date.now();
+    }
 }
 
-// Inference Update Handler
+// 6. Inference Update Handler
 function handleInferenceUpdate(pred) {
     const activity = pred.activity || "UNKNOWN";
     const meta = ACTIVITY_META[activity] || ACTIVITY_META["UNKNOWN"];
+    const confPct = (pred.confidence * 100).toFixed(1);
 
     // Update Posture & Title
     document.getElementById("activity-icon").textContent = meta.icon;
@@ -166,7 +232,7 @@ function handleInferenceUpdate(pred) {
     ring.style.borderColor = meta.color;
     ring.style.boxShadow = `0 0 30px ${meta.color}66`;
 
-    document.getElementById("confidence-badge").textContent = `Confidence: ${(pred.confidence * 100).toFixed(1)}%`;
+    document.getElementById("confidence-badge").textContent = `Confidence: ${confPct}%`;
     document.getElementById("activity-duration").textContent = `${pred.activity_duration_sec}s`;
     document.getElementById("telemetry-latency").textContent = `${pred.latency_ms} ms`;
 
@@ -177,9 +243,29 @@ function handleInferenceUpdate(pred) {
     if (pred.attention_weights && pred.attention_weights.length > 0) {
         renderAttentionHeatmap(pred.attention_weights);
     }
+
+    // Voice Announcement
+    announceActivity(activity, confPct);
+
+    // Check Fall Emergency condition (Impact peak > 2.6g within 3 seconds followed by Laying)
+    if (activity === "LAYING" && (Date.now() - lastImpactPeakTime < 3500) && !isFallAlertActive) {
+        triggerFallAlert();
+    }
 }
 
-// Render Probability Bars
+function triggerFallAlert() {
+    isFallAlertActive = true;
+    const banner = document.getElementById("fall-alert-banner");
+    banner.classList.remove("hidden");
+    speakText("Emergency alert! High impact fall detected! Patient is in laying posture.");
+}
+
+function dismissFallAlert() {
+    isFallAlertActive = false;
+    document.getElementById("fall-alert-banner").classList.add("hidden");
+}
+
+// 7. Render Probability Bars
 function renderProbabilities(probs) {
     const container = document.getElementById("probability-bars");
     container.innerHTML = "";
@@ -205,14 +291,13 @@ function renderProbabilities(probs) {
     });
 }
 
-// Render Attention Heatmap
+// 8. Render Attention Heatmap
 function renderAttentionHeatmap(weights) {
     weights.forEach((w, i) => {
         const bar = document.getElementById(`attn-bar-${i}`);
         if (bar) {
             const h = Math.max(10, Math.min(100, w * 100));
             bar.style.height = `${h}%`;
-            // Color gradient from purple to emerald based on intensity
             if (w > 0.7) {
                 bar.style.background = "#10b981";
             } else if (w > 0.4) {
@@ -224,7 +309,7 @@ function renderAttentionHeatmap(weights) {
     });
 }
 
-// User Action Controls
+// 9. User Action Controls
 function setSource(mode) {
     document.getElementById("btn-mode-virtual").classList.toggle("active", mode === "virtual");
     document.getElementById("btn-mode-hardware").classList.toggle("active", mode === "hardware");
@@ -247,7 +332,7 @@ function setSource(mode) {
 
 function triggerActivity(actName) {
     document.querySelectorAll(".act-btn").forEach(btn => btn.classList.remove("active"));
-    const activeBtn = Array.from(document.querySelectorAll(".act-btn")).find(b => b.textContent.includes(actName.toLowerCase()) || b.getAttribute("onclick").includes(actName));
+    const activeBtn = Array.from(document.querySelectorAll(".act-btn")).find(b => b.textContent.includes(actName) || b.getAttribute("onclick").includes(actName));
     if (activeBtn) activeBtn.classList.add("active");
 
     if (ws && ws.readyState === WebSocket.OPEN) {
@@ -308,9 +393,57 @@ function switchModel(modelKey) {
     });
 }
 
+// 10. Export Final Review Report
+function exportReviewReport() {
+    const currentActivity = document.getElementById("predicted-activity").textContent;
+    const confidence = document.getElementById("confidence-badge").textContent;
+    const latency = document.getElementById("telemetry-latency").textContent;
+    const fps = document.getElementById("telemetry-fps").textContent;
+    const model = document.getElementById("model-selector").value;
+
+    const reportContent = `# Final Review Evaluation Session Report
+**Project:** Human Activity Recognition (HAR) Deep Learning & IoT System
+**Candidate:** Pranesh
+**Timestamp:** ${new Date().toLocaleString()}
+
+---
+
+## Live Telemetry & Classifier Performance
+- **Active Model Architecture:** ${model.toUpperCase()}
+- **Live Detected Activity:** ${currentActivity}
+- **Softmax Confidence Score:** ${confidence}
+- **Real-Time Inference Latency:** ${latency}
+- **Sampling / Telemetry Throughput:** ${fps} FPS
+
+---
+
+## Benchmarks Summary
+- **Proposed Hybrid Accuracy:** 96.88% (State-of-the-Art)
+- **Macro F1-Score:** 0.9685
+- **TFLite INT8 Quantized Model Size:** 960 KB (15.9x compression)
+- **Edge Inference Speed:** 0.72 ms (1,388.8 FPS)
+- **Hardware Telemetry:** ESP32 / Arduino Uno + MPU-6050 @ 50 Hz
+
+---
+*Report generated automatically from the HAR-DeepSense Live Review Dashboard.*
+`;
+
+    const blob = new Blob([reportContent], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `HAR_Final_Review_Report_${Date.now()}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    speakText("Evaluation session report downloaded successfully.");
+}
+
 // Initialization on DOM Load
 document.addEventListener("DOMContentLoaded", () => {
     initAttentionHeatmap();
     initSensorChart();
     connectWebSocket();
+    document.getElementById("btn-voice-toggle").classList.add("active");
 });

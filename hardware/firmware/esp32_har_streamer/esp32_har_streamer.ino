@@ -67,6 +67,21 @@ class MyServerCallbacks: public BLEServerCallbacks {
     }
 };
 
+void readRawMPU(int16_t &ax, int16_t &ay, int16_t &az, int16_t &gx, int16_t &gy, int16_t &gz) {
+    Wire.beginTransmission(MPU6050_ADDR);
+    Wire.write(0x3B); // ACCEL_XOUT_H register
+    Wire.endTransmission(false);
+    Wire.requestFrom(MPU6050_ADDR, 14, true);
+
+    ax = (Wire.read() << 8 | Wire.read());
+    ay = (Wire.read() << 8 | Wire.read());
+    az = (Wire.read() << 8 | Wire.read());
+    int16_t tempRaw = (Wire.read() << 8 | Wire.read()); // Temperature (unused)
+    gx = (Wire.read() << 8 | Wire.read());
+    gy = (Wire.read() << 8 | Wire.read());
+    gz = (Wire.read() << 8 | Wire.read());
+}
+
 void setupMPU6050() {
     Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN, 400000); // 400 kHz Fast I2C
     
@@ -121,21 +136,6 @@ void calibrateSensors() {
     Serial.printf("# Calibrated: AccOffset(%.3f, %.3f, %.3f), GyroOffset(%.3f, %.3f, %.3f)\n",
                   accX_offset, accY_offset, accZ_offset, gyroX_offset, gyroY_offset, gyroZ_offset);
     digitalWrite(STATUS_LED_PIN, LOW);
-}
-
-void readRawMPU(int16_t &ax, int16_t &ay, int16_t &az, int16_t &gx, int16_t &gy, int16_t &gz) {
-    Wire.beginTransmission(MPU6050_ADDR);
-    Wire.write(0x3B); // ACCEL_XOUT_H register
-    Wire.endTransmission(false);
-    Wire.requestFrom(MPU6050_ADDR, 14, true);
-
-    ax = (Wire.read() << 8 | Wire.read());
-    ay = (Wire.read() << 8 | Wire.read());
-    az = (Wire.read() << 8 | Wire.read());
-    int16_t tempRaw = (Wire.read() << 8 | Wire.read()); // Temperature (unused)
-    gx = (Wire.read() << 8 | Wire.read());
-    gy = (Wire.read() << 8 | Wire.read());
-    gz = (Wire.read() << 8 | Wire.read());
 }
 
 void setupBLE() {
