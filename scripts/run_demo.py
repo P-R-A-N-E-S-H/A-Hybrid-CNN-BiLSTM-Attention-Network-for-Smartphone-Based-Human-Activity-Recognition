@@ -35,9 +35,8 @@ def launch():
         webbrowser.open(f"http://localhost:{config.API_PORT}")
 
     import threading
-    threading.Thread(target=open_browser, daemon=True).start()
-
-    uvicorn.run("api.server:app", host=config.API_HOST, port=config.API_PORT, reload=False)
+    from api.server import app
+    uvicorn.run(app, host=config.API_HOST, port=config.API_PORT)
 
 
 if __name__ == "__main__":
