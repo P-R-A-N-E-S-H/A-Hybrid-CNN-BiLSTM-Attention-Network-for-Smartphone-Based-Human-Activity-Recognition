@@ -135,7 +135,6 @@ pytest tests/ -v
 
 - 📄 **[Final Review Academic Thesis](docs/FINAL_REVIEW_REPORT.md)**: Full mathematical derivations, literature review, and experimental results.
 - 🔌 **[Hardware Wiring & Calibration Guide](docs/HARDWARE_SETUP_GUIDE.md)**: Schematics, pinouts, and serial protocols.
-- 🎤 **[Viva Defense & Presentation Script](docs/VIVA_AND_DEFENSE_GUIDE.md)**: 15-slide deck script and examiner Q&A answers.
 - 🔬 **[Ablation Study Analysis](docs/ABLATION_STUDY.md)**: Empirical proof of component contributions.
 
 ---
