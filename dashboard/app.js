@@ -4,15 +4,15 @@
  * ======================================================================
  */
 
-// Activity Configuration & Visual Metadata
+// Activity Configuration & Visual Metadata (With Class IDs 0 to 5)
 const ACTIVITY_META = {
-    "WALKING": { icon: "🚶", color: "#3b82f6", label: "Walking" },
-    "WALKING_UPSTAIRS": { icon: "🧗", color: "#10b981", label: "Walking Upstairs" },
-    "WALKING_DOWNSTAIRS": { icon: "⛷️", color: "#f59e0b", label: "Walking Downstairs" },
-    "SITTING": { icon: "🪑", color: "#8b5cf6", label: "Sitting" },
-    "STANDING": { icon: "🧍", color: "#ec4899", label: "Standing" },
-    "LAYING": { icon: "🛌", color: "#64748b", label: "Laying" },
-    "UNKNOWN": { icon: "🔄", color: "#94a3b8", label: "Analyzing..." }
+    "LAYING": { id: 0, icon: "🛌", color: "#64748b", label: "[0] Laying" },
+    "SITTING": { id: 1, icon: "🪑", color: "#8b5cf6", label: "[1] Sitting" },
+    "STANDING": { id: 2, icon: "🧍", color: "#ec4899", label: "[2] Standing" },
+    "WALKING": { id: 3, icon: "🚶", color: "#3b82f6", label: "[3] Walking" },
+    "WALKING_DOWNSTAIRS": { id: 4, icon: "⛷️", color: "#f59e0b", label: "[4] Walking Downstairs" },
+    "WALKING_UPSTAIRS": { id: 5, icon: "🧗", color: "#10b981", label: "[5] Walking Upstairs" },
+    "UNKNOWN": { id: -1, icon: "🔄", color: "#94a3b8", label: "Analyzing..." }
 };
 
 const MODEL_SPECS = {
