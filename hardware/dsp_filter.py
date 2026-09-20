@@ -149,8 +149,8 @@ class HARSignalProcessor:
         # 3. Gravity Separation
         body_accel, gravity_accel = self.separate_gravity_and_body(accel_total)
 
-        # 4. Construct 9-channel representation
-        nine_channel = np.hstack([body_accel, gravity_accel, gyro_body])  # (128, 9)
+        # 4. Construct 9-channel representation: [total_acc, body_acc, body_gyro]
+        nine_channel = np.hstack([accel_total, body_accel, gyro_body])  # (128, 9)
 
         # 5. Apply Normalization if scaler is available
         if self.scaler is not None:

@@ -33,32 +33,32 @@ WINDOW_STEP = 64               # 50% overlap = 64 samples step
 NUM_CHANNELS = 9               # 9 channels: 3 tBodyAcc, 3 tGravityAcc, 3 tBodyGyro
 NUM_CLASSES = 6                # 6 human activity categories
 
-# Activity Classes Taxonomy
+# Activity Classes Taxonomy (Matching models.py and class_names.npy)
 ACTIVITY_LABELS = {
-    0: "WALKING",
-    1: "WALKING_UPSTAIRS",
-    2: "WALKING_DOWNSTAIRS",
-    3: "SITTING",
-    4: "STANDING",
-    5: "LAYING"
+    0: "LAYING",
+    1: "SITTING",
+    2: "STANDING",
+    3: "WALKING",
+    4: "WALKING_DOWNSTAIRS",
+    5: "WALKING_UPSTAIRS"
 }
 
 ACTIVITY_NAMES = [
-    "WALKING",
-    "WALKING_UPSTAIRS",
-    "WALKING_DOWNSTAIRS",
+    "LAYING",
     "SITTING",
     "STANDING",
-    "LAYING"
+    "WALKING",
+    "WALKING_DOWNSTAIRS",
+    "WALKING_UPSTAIRS"
 ]
 
 ACTIVITY_COLORS = {
-    "WALKING": "#3B82F6",             # Blue
-    "WALKING_UPSTAIRS": "#10B981",    # Emerald
-    "WALKING_DOWNSTAIRS": "#F59E0B",  # Amber
-    "SITTING": "#8B5CF6",             # Purple
-    "STANDING": "#EC4899",            # Pink
-    "LAYING": "#6B7280"               # Slate Gray
+    "LAYING": "#6B7280",             # Slate Gray
+    "SITTING": "#8B5CF6",            # Purple
+    "STANDING": "#EC4899",           # Pink
+    "WALKING": "#3B82F6",            # Blue
+    "WALKING_DOWNSTAIRS": "#F59E0B", # Amber
+    "WALKING_UPSTAIRS": "#10B981"    # Emerald
 }
 
 # Channel Descriptions (UCI HAR standard)
